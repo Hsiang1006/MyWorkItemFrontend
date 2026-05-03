@@ -22,13 +22,16 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       const result = await login(data).unwrap();
-      // 假設後端回傳格式包含 token
-      // 這裡根據您的規範，我們將 token, user, role 存入 slice
+      
+      // 直接從後端回傳的 result.roles 陣列中提取角色
+      // 假設 roles 陣列中包含至少一個角色，取第一個作為主要角色
+      const role = result.roles && result.roles.length > 0 ? result.roles[0] : 'User';
+
       dispatch(
         setCredentials({
-          user: result.username || data.username,
+          user: result.username || data.username, // 假設後端也回傳 username 或用登入的 username
           token: result.token,
-          role: result.role || 'User', // 預設角色，或從後端獲取
+          role: role,
         })
       );
       navigate('/work-items');

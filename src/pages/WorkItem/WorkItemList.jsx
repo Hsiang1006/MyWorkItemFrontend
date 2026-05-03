@@ -164,10 +164,10 @@ const WorkItemList = () => {
                     disabled={selectableItems.length === 0}
                   />
                 </th>
-                <th scope="col" style={{ width: "80px" }}>編號</th>
+                <th scope="col" className="text-center" style={{ width: "80px" }}>編號</th>
                 <th scope="col">標題</th>
-                <th scope="col" style={{ width: "100px" }}>狀態</th>
-                <th scope="col" style={{ width: "160px" }}>操作</th>
+                <th scope="col" className="text-center" style={{ width: "100px" }}>狀態</th>
+                <th scope="col" className="text-center" style={{ width: "160px" }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -197,11 +197,11 @@ const WorkItemList = () => {
                           disabled={isConfirmed}
                         />
                       </td>
-                      <td>{index + 1}</td>
+                      <td className="text-center">{index + 1}</td>
                       <td className="fw-medium">
                         {item.title || item.Title || "無標題"}
                       </td>
-                      <td>
+                      <td className="text-center">
                         {isConfirmed ? (
                           <span className="badge bg-success">已確認</span>
                         ) : item.status === "Pending" ? (
@@ -210,8 +210,8 @@ const WorkItemList = () => {
                           <span className="badge bg-secondary">{item.status || "未知"}</span>
                         )}
                       </td>
-                      <td onClick={(e) => e.stopPropagation()}>
-                        <div className="d-flex gap-2">
+                      <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                        <div className="d-flex gap-2 justify-content-center">
                           <button
                             className="btn btn-sm btn-outline-info"
                             onClick={() => goToDetail(currentId)}
