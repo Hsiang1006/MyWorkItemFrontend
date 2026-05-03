@@ -82,7 +82,7 @@ const WorkItemList = () => {
       alert("無效的項目 ID");
       return;
     }
-    if (window.confirm("確定要撤銷此項目嗎？")) {
+    if (window.confirm('確定要將此項目標記回『待確認』嗎？')) {
       try {
         await revokeItem(id).unwrap();
         alert("撤銷成功！");
@@ -144,7 +144,7 @@ const WorkItemList = () => {
       <div className="card shadow-sm">
         <div className="card-body p-0">
           <div className="d-none d-md-block table-responsive">
-            <table className="table table-hover table-striped mb-0 align-middle">
+            <table className="table table-hover mb-0 align-middle">
               <thead className="table-light">
                 <tr>
                   <th scope="col" className="text-center" style={{ width: "60px" }}>
@@ -178,12 +178,12 @@ const WorkItemList = () => {
                     const isConfirmed = item.status === "Confirmed";
 
                     return (
-                      <tr
-                        key={currentId || index}
-                        onClick={() => goToDetail(currentId)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                                          <tr
+                                            key={currentId || index}
+                                            onClick={() => goToDetail(currentId)}
+                                            style={{ cursor: "pointer" }}
+                                            className={selectedIds.includes(currentId) ? 'table-primary' : ''}
+                                          >                        <td className="text-center" onClick={(e) => e.stopPropagation()}>
                           <input
                             className="form-check-input"
                             type="checkbox"
@@ -200,7 +200,7 @@ const WorkItemList = () => {
                           {isConfirmed ? (
                             <span className="badge bg-success">已確認</span>
                           ) : item.status === "Pending" ? (
-                            <span className="badge bg-warning text-dark">待處理</span>
+                            <span className="badge bg-warning text-dark">待確認</span>
                           ) : (
                             <span className="badge bg-secondary">{item.status || "未知"}</span>
                           )}
@@ -275,7 +275,7 @@ const WorkItemList = () => {
                           {isConfirmed ? (
                             <span className="badge bg-success">已確認</span>
                           ) : item.status === "Pending" ? (
-                            <span className="badge bg-warning text-dark">待處理</span>
+                            <span className="badge bg-warning text-dark">待確認</span>
                           ) : (
                             <span className="badge bg-secondary">{item.status || "未知"}</span>
                           )}

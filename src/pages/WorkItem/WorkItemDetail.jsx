@@ -51,7 +51,7 @@ const WorkItemDetail = () => {
   };
 
   const handleRevoke = async () => {
-    if (window.confirm("確定要撤銷此項目嗎？")) {
+    if (window.confirm('確定要將此項目標記回『待確認』嗎？')) {
       try {
         await revokeItem(currentId).unwrap();
         alert("撤銷成功！");
@@ -153,12 +153,10 @@ const WorkItemDetail = () => {
           <div className="col-sm-9">
             {isConfirmed ? (
               <span className="badge bg-success">已確認</span>
-            ) : item.status === "Pending" ? (
-              <span className="badge bg-warning text-dark">待處理</span>
+            ) : item.status === 'Pending' ? (
+              <span className="badge bg-warning text-dark">待確認</span>
             ) : (
-              <span className="badge bg-secondary">
-                {item.status || "未知"}
-              </span>
+              <span className="badge bg-secondary">{item.status || '未知'}</span>
             )}
           </div>
         </div>

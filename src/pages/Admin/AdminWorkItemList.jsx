@@ -84,7 +84,7 @@ const AdminWorkItemList = () => {
                           {item.status === 'Confirmed' ? (
                             <span className="badge bg-success">已確認</span>
                           ) : item.status === 'Pending' ? (
-                            <span className="badge bg-warning text-dark">待處理</span>
+                            <span className="badge bg-warning text-dark">待確認</span>
                           ) : (
                             <span className="badge bg-secondary">{item.status || '未知'}</span>
                           )}
