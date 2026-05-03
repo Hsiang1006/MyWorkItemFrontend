@@ -119,7 +119,12 @@ const AdminWorkItemList = () => {
                 {workItems.map((item, index) => {
                   const currentId = getItemId(item);
                   return (
-                    <li key={currentId} className="list-group-item p-3">
+                    <li 
+                      key={currentId} 
+                      className="list-group-item p-3"
+                      onClick={() => navigate(`/admin/work-items/${currentId}/edit`)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <span className="text-muted fw-medium">#{index + 1}</span>
                         {item.status === 'Confirmed' ? (
@@ -131,7 +136,7 @@ const AdminWorkItemList = () => {
                         )}
                       </div>
                       <div className="fw-medium mb-3">{item.title || item.Title || '無標題'}</div>
-                      <div className="d-flex justify-content-end gap-2">
+                      <div className="d-flex justify-content-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <button
                           className="btn btn-sm btn-outline-secondary"
                           onClick={() => navigate(`/admin/work-items/${currentId}/edit`)}
