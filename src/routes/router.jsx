@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AccountLayout from '../layouts/AccountLayout';
 import Login from '../pages/Auth/Login';
 import WorkItemList from '../pages/WorkItem/WorkItemList';
+import WorkItemDetail from '../pages/WorkItem/WorkItemDetail';
 import AdminWorkItemList from '../pages/Admin/AdminWorkItemList';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
           {
             path: 'work-items',
             element: <WorkItemList />,
+          },
+          {
+            path: 'work-items/:id',
+            element: <WorkItemDetail />,
           },
         ],
       },
