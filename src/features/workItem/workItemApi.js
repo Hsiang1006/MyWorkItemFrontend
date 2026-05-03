@@ -49,6 +49,43 @@ export const workItemApi = baseApi.injectEndpoints({
         { type: 'WorkItem', id }
       ],
     }),
+    
+    // --- Admin Endpoints ---
+
+    // 新增 WorkItem
+    createWorkItem: builder.mutation({
+      query: (data) => ({
+        url: '/admin/work-items',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'WorkItem', id: 'LIST' }],
+    }),
+
+    // 修改 WorkItem
+    updateWorkItem: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/work-items/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'WorkItem', id: 'LIST' },
+        { type: 'WorkItem', id },
+      ],
+    }),
+
+    // 刪除 WorkItem
+    deleteWorkItem: builder.mutation({
+      query: (id) => ({
+        url: `/admin/work-items/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'WorkItem', id: 'LIST' },
+        { type: 'WorkItem', id },
+      ],
+    }),
   }),
 });
 
@@ -57,4 +94,7 @@ export const {
   useGetWorkItemQuery,
   useBatchConfirmMutation,
   useRevokeWorkItemMutation,
+  useCreateWorkItemMutation,
+  useUpdateWorkItemMutation,
+  useDeleteWorkItemMutation,
 } = workItemApi;

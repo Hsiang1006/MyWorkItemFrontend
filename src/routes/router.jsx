@@ -4,6 +4,8 @@ import Login from '../pages/Auth/Login';
 import WorkItemList from '../pages/WorkItem/WorkItemList';
 import WorkItemDetail from '../pages/WorkItem/WorkItemDetail';
 import AdminWorkItemList from '../pages/Admin/AdminWorkItemList';
+import WorkItemNew from '../pages/Admin/WorkItemNew';
+import WorkItemEdit from '../pages/Admin/WorkItemEdit';
 import ProtectedRoute from './ProtectedRoute';
 
 export const router = createBrowserRouter([
@@ -38,6 +40,14 @@ export const router = createBrowserRouter([
           {
             path: 'admin/work-items',
             element: <AdminWorkItemList />,
+          },
+          {
+            path: 'admin/work-items/new',
+            element: <WorkItemNew />,
+          },
+          {
+            path: 'admin/work-items/:id/edit',
+            element: <WorkItemEdit />,
           },
         ],
       },
