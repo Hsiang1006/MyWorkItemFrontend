@@ -115,27 +115,22 @@ const WorkItemList = () => {
     );
 
   return (
-    <div className="card shadow-sm mt-4">
-      <div className="card-header bg-white d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
-        <h5 className="mb-0 fw-bold">待辦事項列表</h5>
-        <div className="d-flex align-items-center gap-2 flex-wrap">
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h4 className="fw-bold mb-0 text-primary">待辦事項列表</h4>
+        <div className="d-flex gap-2">
           <select
-            className="form-select form-select-sm"
-            style={{ width: "auto", minWidth: "120px" }}
+            className="form-select"
+            style={{ width: 'auto' }}
             value={sortOrder}
             onChange={handleSortChange}
           >
             <option value="latest">最新</option>
             <option value="oldest">最舊</option>
           </select>
+          <button className="btn btn-outline-secondary" onClick={refetch}>重新整理</button>
           <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={refetch}
-          >
-            重新整理
-          </button>
-          <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary shadow-sm"
             onClick={handleBatchConfirm}
             disabled={selectedIds.length === 0 || isConfirming}
           >
@@ -146,128 +141,49 @@ const WorkItemList = () => {
           </button>
         </div>
       </div>
-      <div className="card-body p-0">
-        {/* 電腦版表格檢視 (d-none d-md-block) */}
-        <div className="d-none d-md-block table-responsive">
-          <table className="table table-hover table-striped mb-0 align-middle">
-            <thead className="table-light">
-              <tr>
-                <th scope="col" className="text-center" style={{ width: "60px" }}>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={
-                      selectableItems.length > 0 &&
-                      selectedIds.length === selectableItems.length
-                    }
-                    onChange={handleSelectAll}
-                    disabled={selectableItems.length === 0}
-                  />
-                </th>
-                <th scope="col" className="text-center" style={{ width: "80px" }}>編號</th>
-                <th scope="col">標題</th>
-                <th scope="col" className="text-center" style={{ width: "100px" }}>狀態</th>
-                <th scope="col" className="text-center" style={{ width: "160px" }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {workItems.length === 0 ? (
+      <div className="card shadow-sm">
+        <div className="card-body p-0">
+          <div className="d-none d-md-block table-responsive">
+            <table className="table table-hover table-striped mb-0 align-middle">
+              <thead className="table-light">
                 <tr>
-                  <td colSpan="5" className="text-center py-5 text-muted">
-                    目前無待辦項目
-                  </td>
+                  <th scope="col" className="text-center" style={{ width: "60px" }}>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={
+                        selectableItems.length > 0 &&
+                        selectedIds.length === selectableItems.length
+                      }
+                      onChange={handleSelectAll}
+                      disabled={selectableItems.length === 0}
+                    />
+                  </th>
+                  <th scope="col" className="text-center" style={{ width: "80px" }}>編號</th>
+                  <th scope="col">標題</th>
+                  <th scope="col" className="text-center" style={{ width: "100px" }}>狀態</th>
+                  <th scope="col" className="text-center" style={{ width: "160px" }}>操作</th>
                 </tr>
-              ) : (
-                workItems.map((item, index) => {
-                  const currentId = getItemId(item);
-                  const isConfirmed = item.status === "Confirmed";
+              </thead>
+              <tbody>
+                {workItems.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="text-center py-5 text-muted">
+                      目前無待辦項目
+                    </td>
+                  </tr>
+                ) : (
+                  workItems.map((item, index) => {
+                    const currentId = getItemId(item);
+                    const isConfirmed = item.status === "Confirmed";
 
-                  return (
-                    <tr
-                      key={currentId || index}
-                      onClick={() => goToDetail(currentId)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <td className="text-center" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          checked={selectedIds.includes(currentId)}
-                          onChange={(e) => handleSelect(e, currentId)}
-                          disabled={isConfirmed}
-                        />
-                      </td>
-                      <td className="text-center">{index + 1}</td>
-                      <td className="fw-medium">
-                        {item.title || item.Title || "無標題"}
-                      </td>
-                      <td className="text-center">
-                        {isConfirmed ? (
-                          <span className="badge bg-success">已確認</span>
-                        ) : item.status === "Pending" ? (
-                          <span className="badge bg-warning text-dark">待處理</span>
-                        ) : (
-                          <span className="badge bg-secondary">{item.status || "未知"}</span>
-                        )}
-                      </td>
-                      <td className="text-center" onClick={(e) => e.stopPropagation()}>
-                        <div className="d-flex gap-2 justify-content-center">
-                          <button
-                            className="btn btn-sm btn-outline-info"
-                            onClick={() => goToDetail(currentId)}
-                          >
-                            詳情
-                          </button>
-                          {isConfirmed && (
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={(e) => handleRevoke(e, currentId)}
-                            >
-                              撤銷
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 手機版卡片檢視 (d-block d-md-none) */}
-        <div className="d-block d-md-none">
-          {selectableItems.length > 0 && (
-            <div className="p-3 border-bottom bg-light d-flex align-items-center">
-              <input
-                className="form-check-input me-2"
-                type="checkbox"
-                checked={selectedIds.length === selectableItems.length}
-                onChange={handleSelectAll}
-              />
-              <span className="text-muted fw-medium" style={{ fontSize: "14px" }}>全選</span>
-            </div>
-          )}
-          
-          {workItems.length === 0 ? (
-            <div className="text-center py-5 text-muted">目前無待辦項目</div>
-          ) : (
-            <ul className="list-group list-group-flush">
-              {workItems.map((item, index) => {
-                const currentId = getItemId(item);
-                const isConfirmed = item.status === "Confirmed";
-
-                return (
-                  <li 
-                    key={currentId || index} 
-                    className="list-group-item p-3"
-                    onClick={() => goToDetail(currentId)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="d-flex w-100 justify-content-between align-items-start mb-2">
-                      <div className="d-flex align-items-center gap-2">
-                        <div onClick={(e) => e.stopPropagation()}>
+                    return (
+                      <tr
+                        key={currentId || index}
+                        onClick={() => goToDetail(currentId)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <td className="text-center" onClick={(e) => e.stopPropagation()}>
                           <input
                             className="form-check-input"
                             type="checkbox"
@@ -275,43 +191,121 @@ const WorkItemList = () => {
                             onChange={(e) => handleSelect(e, currentId)}
                             disabled={isConfirmed}
                           />
+                        </td>
+                        <td className="text-center">{index + 1}</td>
+                        <td className="fw-medium">
+                          {item.title || item.Title || "無標題"}
+                        </td>
+                        <td className="text-center">
+                          {isConfirmed ? (
+                            <span className="badge bg-success">已確認</span>
+                          ) : item.status === "Pending" ? (
+                            <span className="badge bg-warning text-dark">待處理</span>
+                          ) : (
+                            <span className="badge bg-secondary">{item.status || "未知"}</span>
+                          )}
+                        </td>
+                        <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                          <div className="d-flex gap-2 justify-content-center">
+                            <button
+                              className="btn btn-sm btn-outline-info"
+                              onClick={() => goToDetail(currentId)}
+                            >
+                              詳情
+                            </button>
+                            {isConfirmed && (
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={(e) => handleRevoke(e, currentId)}
+                              >
+                                撤銷
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="d-block d-md-none">
+            {selectableItems.length > 0 && (
+              <div className="p-3 border-bottom bg-light d-flex align-items-center">
+                <input
+                  className="form-check-input me-2"
+                  type="checkbox"
+                  checked={selectedIds.length === selectableItems.length}
+                  onChange={handleSelectAll}
+                />
+                <span className="text-muted fw-medium" style={{ fontSize: "14px" }}>全選</span>
+              </div>
+            )}
+            
+            {workItems.length === 0 ? (
+              <div className="text-center py-5 text-muted">目前無待辦項目</div>
+            ) : (
+              <ul className="list-group list-group-flush">
+                {workItems.map((item, index) => {
+                  const currentId = getItemId(item);
+                  const isConfirmed = item.status === "Confirmed";
+
+                  return (
+                    <li 
+                      key={currentId || index} 
+                      className="list-group-item p-3"
+                      onClick={() => goToDetail(currentId)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="d-flex w-100 justify-content-between align-items-start mb-2">
+                        <div className="d-flex align-items-center gap-2">
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              checked={selectedIds.includes(currentId)}
+                              onChange={(e) => handleSelect(e, currentId)}
+                              disabled={isConfirmed}
+                            />
+                          </div>
+                          <span className="text-muted small">#{index + 1}</span>
                         </div>
-                        <span className="text-muted small">#{index + 1}</span>
+                        <div>
+                          {isConfirmed ? (
+                            <span className="badge bg-success">已確認</span>
+                          ) : item.status === "Pending" ? (
+                            <span className="badge bg-warning text-dark">待處理</span>
+                          ) : (
+                            <span className="badge bg-secondary">{item.status || "未知"}</span>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        {isConfirmed ? (
-                          <span className="badge bg-success">已確認</span>
-                        ) : item.status === "Pending" ? (
-                          <span className="badge bg-warning text-dark">待處理</span>
-                        ) : (
-                          <span className="badge bg-secondary">{item.status || "未知"}</span>
+                      <div className="fw-medium mb-3 ms-4 ps-1">
+                        {item.title || item.Title || "無標題"}
+                      </div>
+                      <div className="d-flex justify-content-end gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="btn btn-sm btn-outline-info"
+                          onClick={() => goToDetail(currentId)}
+                        >
+                          詳情
+                        </button>
+                        {isConfirmed && (
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={(e) => handleRevoke(e, currentId)}
+                          >
+                            撤銷
+                          </button>
                         )}
                       </div>
-                    </div>
-                    <div className="fw-medium mb-3 ms-4 ps-1">
-                      {item.title || item.Title || "無標題"}
-                    </div>
-                    <div className="d-flex justify-content-end gap-2" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        className="btn btn-sm btn-outline-info"
-                        onClick={() => goToDetail(currentId)}
-                      >
-                        詳情
-                      </button>
-                      {isConfirmed && (
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={(e) => handleRevoke(e, currentId)}
-                        >
-                          撤銷
-                        </button>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>
