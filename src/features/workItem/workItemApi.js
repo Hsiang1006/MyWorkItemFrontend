@@ -30,8 +30,11 @@ export const workItemApi = baseApi.injectEndpoints({
         // 如果後端的屬性名稱是別的 (例如 "ids")，請調整此處的 key
         body: { workItemIds: ids }, 
       }),
-      // 執行成功後，失效 'LIST' 標籤，讓 getWorkItems 自動重新 Fetch
-      invalidatesTags: [{ type: 'WorkItem', id: 'LIST' }],
+      // 執行成功後，失效 'LIST' 標籤與特定項目標籤，讓 getWorkItems 與 getWorkItem 自動重新 Fetch
+      invalidatesTags: (result, error, ids) => [
+        { type: 'WorkItem', id: 'LIST' },
+        ...(ids || []).map(id => ({ type: 'WorkItem', id }))
+      ],
     }),
     
     // 撤銷單一項目 (POST)
