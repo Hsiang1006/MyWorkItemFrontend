@@ -1,37 +1,63 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useMemo } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
-  useGetWorkItemsQuery,
-  useDeleteWorkItemMutation
-} from '../../features/workItem/workItemApi';
+  useGetAdminWorkItemsQuery,
+  useDeleteWorkItemMutation,
+} from "../../features/workItem/workItemApi";
 
 const AdminWorkItemList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const sortOrder = searchParams.get('sort') || 'latest';
+  const sortOrder = searchParams.get("sort") || "latest";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = 10;
 
-  const { data: workItems = [], isLoading, isError, refetch } = useGetWorkItemsQuery(sortOrder);
+  const { data, isLoading, isError, refetch } = useGetAdminWorkItemsQuery({
+    sort: sortOrder,
+    page,
+    pageSize,
+  });
   const [deleteItem] = useDeleteWorkItemMutation();
 
+  const workItems = useMemo(() => data?.items || [], [data?.items]);
+  const totalPages = data?.totalPages || 1;
+  const currentPage = data?.currentPage || 1;
+
   const handleSortChange = (e) => {
-    setSearchParams({ sort: e.target.value });
+    setSearchParams({ sort: e.target.value, page: 1 }); // 切換排序時回到第一頁
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setSearchParams({ sort: sortOrder, page: newPage });
+    }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('確定要永久刪除這筆資料嗎？此操作無法復原。')) {
+    if (window.confirm("確定要永久刪除這筆資料嗎？此操作無法復原。")) {
       try {
         await deleteItem(id).unwrap();
-        alert('刪除成功！');
+        alert("刪除成功！");
       } catch (err) {
-        alert('刪除失敗: ' + (err.data?.message || '發生錯誤'));
+        alert("刪除失敗: " + (err.data?.message || "發生錯誤"));
       }
     }
   };
 
   const getItemId = (item) => item.id || item.Id || item.workItemId;
 
-  if (isLoading) return <div className="text-center mt-5"><div className="spinner-border text-primary" /></div>;
-  if (isError) return <div className="alert alert-danger mt-3">載入列表失敗，請稍後再試或確認您的權限。</div>;
+  if (isLoading)
+    return (
+      <div className="text-center mt-5">
+        <div className="spinner-border text-primary" />
+      </div>
+    );
+  if (isError)
+    return (
+      <div className="alert alert-danger mt-3">
+        載入列表失敗，請稍後再試或確認您的權限。
+      </div>
+    );
 
   return (
     <div>
@@ -40,15 +66,22 @@ const AdminWorkItemList = () => {
         <div className="d-flex gap-2">
           <select
             className="form-select"
-            style={{ width: 'auto' }}
+            style={{ width: "auto" }}
             value={sortOrder}
             onChange={handleSortChange}
           >
             <option value="latest">最新</option>
             <option value="oldest">最舊</option>
           </select>
-          <button className="btn btn-outline-secondary" onClick={refetch}>重新整理</button>
-          <button className="btn btn-primary shadow-sm" onClick={() => navigate('/admin/work-items/new')}>+ 新增待辦</button>
+          <button className="btn btn-outline-secondary" onClick={refetch}>
+            重新整理
+          </button>
+          <button
+            className="btn btn-primary shadow-sm"
+            onClick={() => navigate("/admin/work-items/new")}
+          >
+            + 新增待辦
+          </button>
         </div>
       </div>
 
@@ -58,46 +91,81 @@ const AdminWorkItemList = () => {
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
-                  <th scope="col" className="text-center ps-4" style={{ width: '80px' }}>編號</th>
+                  <th
+                    scope="col"
+                    className="text-center ps-4"
+                    style={{ width: "80px" }}
+                  >
+                    編號
+                  </th>
                   <th scope="col">標題</th>
-                  <th scope="col" className="text-center" style={{ width: '120px' }}>狀態</th>
-                  <th scope="col" className="text-center" style={{ width: '160px' }}>操作</th>
+                  <th
+                    scope="col"
+                    className="text-center"
+                    style={{ width: "120px" }}
+                  >
+                    狀態
+                  </th>
+                  <th
+                    scope="col"
+                    className="text-center"
+                    style={{ width: "160px" }}
+                  >
+                    操作
+                  </th>
                 </tr>
               </thead>
               <tbody className="border-top-0">
                 {workItems.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="text-center py-5 text-muted">目前無任何項目</td>
+                    <td colSpan="4" className="text-center py-5 text-muted">
+                      目前無任何項目
+                    </td>
                   </tr>
                 ) : (
                   workItems.map((item, index) => {
                     const currentId = getItemId(item);
                     return (
-                      <tr 
+                      <tr
                         key={currentId}
-                        onClick={() => navigate(`/admin/work-items/${currentId}/edit`)}
-                        style={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          navigate(`/admin/work-items/${currentId}/edit`)
+                        }
+                        style={{ cursor: "pointer" }}
                       >
-                        <td className="text-center text-muted fw-medium ps-4">{index + 1}</td>
-                        <td className="fw-medium">{item.title || item.Title || '無標題'}</td>
+                        <td className="text-center text-muted fw-medium ps-4">
+                          {index + 1}
+                        </td>
+                        <td className="fw-medium">
+                          {item.title || item.Title || "無標題"}
+                        </td>
                         <td className="text-center">
-                          {item.status === 'Confirmed' ? (
+                          {item.status === "Confirmed" ? (
                             <span className="badge bg-success">已確認</span>
-                          ) : item.status === 'Pending' ? (
-                            <span className="badge bg-warning text-dark">待確認</span>
+                          ) : item.status === "Pending" ? (
+                            <span className="badge bg-warning text-dark">
+                              待確認
+                            </span>
                           ) : (
-                            <span className="badge bg-secondary">{item.status || '未知'}</span>
+                            <span className="badge bg-secondary">
+                              {item.status || "未知"}
+                            </span>
                           )}
                         </td>
-                        <td className="text-center text-nowrap" onClick={(e) => e.stopPropagation()}>
-                          <button 
-                            className="btn btn-sm btn-outline-secondary me-2" 
-                            onClick={() => navigate(`/admin/work-items/${currentId}/edit`)}
+                        <td
+                          className="text-center text-nowrap"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            className="btn btn-sm btn-outline-secondary me-2"
+                            onClick={() =>
+                              navigate(`/admin/work-items/${currentId}/edit`)
+                            }
                           >
                             編輯
                           </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger" 
+                          <button
+                            className="btn btn-sm btn-outline-danger"
                             onClick={() => handleDelete(currentId)}
                           >
                             刪除
@@ -119,27 +187,42 @@ const AdminWorkItemList = () => {
                 {workItems.map((item, index) => {
                   const currentId = getItemId(item);
                   return (
-                    <li 
-                      key={currentId} 
+                    <li
+                      key={currentId}
                       className="list-group-item p-3"
-                      onClick={() => navigate(`/admin/work-items/${currentId}/edit`)}
-                      style={{ cursor: 'pointer' }}
+                      onClick={() =>
+                        navigate(`/admin/work-items/${currentId}/edit`)
+                      }
+                      style={{ cursor: "pointer" }}
                     >
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <span className="text-muted fw-medium">#{index + 1}</span>
-                        {item.status === 'Confirmed' ? (
+                        <span className="text-muted fw-medium">
+                          #{index + 1}
+                        </span>
+                        {item.status === "Confirmed" ? (
                           <span className="badge bg-success">已確認</span>
-                        ) : item.status === 'Pending' ? (
-                          <span className="badge bg-warning text-dark">待處理</span>
+                        ) : item.status === "Pending" ? (
+                          <span className="badge bg-warning text-dark">
+                            待確認
+                          </span>
                         ) : (
-                          <span className="badge bg-secondary">{item.status || '未知'}</span>
+                          <span className="badge bg-secondary">
+                            {item.status || "未知"}
+                          </span>
                         )}
                       </div>
-                      <div className="fw-medium mb-3">{item.title || item.Title || '無標題'}</div>
-                      <div className="d-flex justify-content-end gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="fw-medium mb-3">
+                        {item.title || item.Title || "無標題"}
+                      </div>
+                      <div
+                        className="d-flex justify-content-end gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           className="btn btn-sm btn-outline-secondary"
-                          onClick={() => navigate(`/admin/work-items/${currentId}/edit`)}
+                          onClick={() =>
+                            navigate(`/admin/work-items/${currentId}/edit`)
+                          }
                         >
                           編輯
                         </button>
@@ -151,12 +234,49 @@ const AdminWorkItemList = () => {
                         </button>
                       </div>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             )}
           </div>
         </div>
+      </div>
+
+      {/* 分頁控制 */}
+      <div className="d-flex justify-content-center mt-4">
+        <ul className="pagination">
+          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              上一頁
+            </button>
+          </li>
+          {[...Array(totalPages)].map((_, i) => (
+            <li
+              key={i + 1}
+              className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
+            >
+              <button
+                className="page-link"
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            </li>
+          ))}
+          <li
+            className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+          >
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              下一頁
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   );

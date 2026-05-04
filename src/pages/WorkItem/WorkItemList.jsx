@@ -10,13 +10,19 @@ const WorkItemList = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const sortOrder = searchParams.get("sort") || "latest"; // 'latest' = 最新, 'oldest' = 最舊
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = 10;
 
-  const {
-    data: workItems = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useGetWorkItemsQuery(sortOrder);
+  const { data, isLoading, isError, refetch } = useGetWorkItemsQuery({
+    sort: sortOrder,
+    page,
+    pageSize,
+  });
+
+  const workItems = useMemo(() => data?.items || [], [data?.items]);
+  const totalPages = data?.totalPages || 1;
+  const currentPage = data?.currentPage || 1;
+
   const [batchConfirm, { isLoading: isConfirming }] = useBatchConfirmMutation();
   const [revokeItem] = useRevokeWorkItemMutation();
 
@@ -31,7 +37,14 @@ const WorkItemList = () => {
   }, [workItems]);
 
   const handleSortChange = (e) => {
-    setSearchParams({ sort: e.target.value });
+    setSearchParams({ sort: e.target.value, page: 1 }); // 切換排序時回到第一頁
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setSearchParams({ sort: sortOrder, page: newPage });
+      setSelectedIds([]); // 換頁時清空選取狀態
+    }
   };
 
   // 全選/取消全選邏輯 (只針對可選項目)
@@ -82,7 +95,7 @@ const WorkItemList = () => {
       alert("無效的項目 ID");
       return;
     }
-    if (window.confirm('確定要將此項目標記回『待確認』嗎？')) {
+    if (window.confirm("確定要將此項目標記回『待確認』嗎？")) {
       try {
         await revokeItem(id).unwrap();
         alert("撤銷成功！");
@@ -121,14 +134,16 @@ const WorkItemList = () => {
         <div className="d-flex gap-2">
           <select
             className="form-select"
-            style={{ width: 'auto' }}
+            style={{ width: "auto" }}
             value={sortOrder}
             onChange={handleSortChange}
           >
             <option value="latest">最新</option>
             <option value="oldest">最舊</option>
           </select>
-          <button className="btn btn-outline-secondary" onClick={refetch}>重新整理</button>
+          <button className="btn btn-outline-secondary" onClick={refetch}>
+            重新整理
+          </button>
           <button
             className="btn btn-primary shadow-sm"
             onClick={handleBatchConfirm}
@@ -147,7 +162,11 @@ const WorkItemList = () => {
             <table className="table table-hover mb-0 align-middle">
               <thead className="table-light">
                 <tr>
-                  <th scope="col" className="text-center" style={{ width: "60px" }}>
+                  <th
+                    scope="col"
+                    className="text-center"
+                    style={{ width: "60px" }}
+                  >
                     <input
                       className="form-check-input"
                       type="checkbox"
@@ -159,10 +178,28 @@ const WorkItemList = () => {
                       disabled={selectableItems.length === 0}
                     />
                   </th>
-                  <th scope="col" className="text-center" style={{ width: "80px" }}>編號</th>
+                  <th
+                    scope="col"
+                    className="text-center"
+                    style={{ width: "80px" }}
+                  >
+                    編號
+                  </th>
                   <th scope="col">標題</th>
-                  <th scope="col" className="text-center" style={{ width: "100px" }}>狀態</th>
-                  <th scope="col" className="text-center" style={{ width: "160px" }}>操作</th>
+                  <th
+                    scope="col"
+                    className="text-center"
+                    style={{ width: "100px" }}
+                  >
+                    狀態
+                  </th>
+                  <th
+                    scope="col"
+                    className="text-center"
+                    style={{ width: "160px" }}
+                  >
+                    操作
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -178,12 +215,18 @@ const WorkItemList = () => {
                     const isConfirmed = item.status === "Confirmed";
 
                     return (
-                                          <tr
-                                            key={currentId || index}
-                                            onClick={() => goToDetail(currentId)}
-                                            style={{ cursor: "pointer" }}
-                                            className={selectedIds.includes(currentId) ? 'table-primary' : ''}
-                                          >                        <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                      <tr
+                        key={currentId || index}
+                        onClick={() => goToDetail(currentId)}
+                        style={{ cursor: "pointer" }}
+                        className={
+                          selectedIds.includes(currentId) ? "table-primary" : ""
+                        }
+                      >
+                        <td
+                          className="text-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <input
                             className="form-check-input"
                             type="checkbox"
@@ -200,12 +243,19 @@ const WorkItemList = () => {
                           {isConfirmed ? (
                             <span className="badge bg-success">已確認</span>
                           ) : item.status === "Pending" ? (
-                            <span className="badge bg-warning text-dark">待確認</span>
+                            <span className="badge bg-warning text-dark">
+                              待確認
+                            </span>
                           ) : (
-                            <span className="badge bg-secondary">{item.status || "未知"}</span>
+                            <span className="badge bg-secondary">
+                              {item.status || "未知"}
+                            </span>
                           )}
                         </td>
-                        <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                        <td
+                          className="text-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="d-flex gap-2 justify-content-center">
                             <button
                               className="btn btn-sm btn-outline-info"
@@ -239,10 +289,15 @@ const WorkItemList = () => {
                   checked={selectedIds.length === selectableItems.length}
                   onChange={handleSelectAll}
                 />
-                <span className="text-muted fw-medium" style={{ fontSize: "14px" }}>全選</span>
+                <span
+                  className="text-muted fw-medium"
+                  style={{ fontSize: "14px" }}
+                >
+                  全選
+                </span>
               </div>
             )}
-            
+
             {workItems.length === 0 ? (
               <div className="text-center py-5 text-muted">目前無待辦項目</div>
             ) : (
@@ -252,8 +307,8 @@ const WorkItemList = () => {
                   const isConfirmed = item.status === "Confirmed";
 
                   return (
-                    <li 
-                      key={currentId || index} 
+                    <li
+                      key={currentId || index}
                       className="list-group-item p-3"
                       onClick={() => goToDetail(currentId)}
                       style={{ cursor: "pointer" }}
@@ -275,16 +330,23 @@ const WorkItemList = () => {
                           {isConfirmed ? (
                             <span className="badge bg-success">已確認</span>
                           ) : item.status === "Pending" ? (
-                            <span className="badge bg-warning text-dark">待確認</span>
+                            <span className="badge bg-warning text-dark">
+                              待確認
+                            </span>
                           ) : (
-                            <span className="badge bg-secondary">{item.status || "未知"}</span>
+                            <span className="badge bg-secondary">
+                              {item.status || "未知"}
+                            </span>
                           )}
                         </div>
                       </div>
                       <div className="fw-medium mb-3 ms-4 ps-1">
                         {item.title || item.Title || "無標題"}
                       </div>
-                      <div className="d-flex justify-content-end gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="d-flex justify-content-end gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           className="btn btn-sm btn-outline-info"
                           onClick={() => goToDetail(currentId)}
@@ -307,6 +369,43 @@ const WorkItemList = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* 分頁控制 */}
+      <div className="d-flex justify-content-center mt-4">
+        <ul className="pagination">
+          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              上一頁
+            </button>
+          </li>
+          {[...Array(totalPages)].map((_, i) => (
+            <li
+              key={i + 1}
+              className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
+            >
+              <button
+                className="page-link"
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            </li>
+          ))}
+          <li
+            className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+          >
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              下一頁
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   );

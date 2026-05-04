@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useGetWorkItemQuery, useUpdateWorkItemMutation } from '../../features/workItem/workItemApi';
+import { useGetAdminWorkItemQuery, useUpdateWorkItemMutation } from '../../features/workItem/workItemApi';
 import WorkItemForm from './WorkItemForm';
 
 const WorkItemEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: item, isLoading: isFetching, isError } = useGetWorkItemQuery(id);
+  const { data: item, isLoading: isFetching, isError } = useGetAdminWorkItemQuery(id);
   const [updateItem, { isLoading: isUpdating }] = useUpdateWorkItemMutation();
 
   const onSubmit = async (data) => {
