@@ -20,21 +20,29 @@
 
 ### 1. 複製專案
 
+```bash
 git clone https://github.com/Hsiang1006/MyWorkItemFrontend.git
 cd MyWorkItemFrontend
+```
 
 ### 2. 安裝依賴
 
+```bash
 npm install
+```
 
 ### 3. 設定環境變數
 
 在專案根目錄建立 `.env` 檔案，並參考以下設定：
+```env
 VITE_API_BASE_URL=https://myworkitem.onrender.com/api
+```
 
 ### 4. 啟動開發伺服器
 
+```bash
 npm run dev
+```
 
 ---
 
@@ -72,22 +80,24 @@ npm run dev
 
 ## 📁 專案結構
 
+```text
 src/
-├── app/ # Redux Store 配置
-├── assets/ # 靜態資源 (圖片、圖示)
-├── components/ # 全局共用元件
-├── features/ # 業務邏輯模組 (按功能劃分)
-│ ├── auth/ # 認證邏輯 (Slice, API)
-│ └── workItem/ # 工作項目邏輯 (API)
-├── layouts/ # 頁面佈局 (如 AccountLayout)
-├── pages/ # 頁面元件 (依 Auth, Admin, User 分類)
-├── routes/ # 路由定義與權限檢查 (ProtectedRoute)
-├── schemas/ # Zod 表單驗證規則
-├── services/ # 基底 API 設定 (baseApi.js)
-└── styles/ # SCSS 樣式系統
-├── abstracts/ # 變數與 Mixins
-├── base/ # 基礎樣式
-└── components/ # 元件級別樣式
+├── app/                # Redux Store 配置
+├── assets/             # 靜態資源 (圖片、圖示)
+├── components/         # 全局共用元件
+├── features/           # 業務邏輯模組 (按功能劃分)
+│   ├── auth/           # 認證邏輯 (Slice, API)
+│   └── workItem/       # 工作項目邏輯 (API)
+├── layouts/            # 頁面佈局 (如 AccountLayout)
+├── pages/              # 頁面元件 (依 Auth, Admin, User 分類)
+├── routes/             # 路由定義與權限檢查 (ProtectedRoute)
+├── schemas/            # Zod 表單驗證規則
+├── services/           # 基底 API 設定 (baseApi.js)
+└── styles/             # SCSS 樣式系統
+    ├── abstracts/      # 變數與 Mixins
+    ├── base/           # 基礎樣式
+    └── components/     # 元件級別樣式
+```
 
 ---
 
